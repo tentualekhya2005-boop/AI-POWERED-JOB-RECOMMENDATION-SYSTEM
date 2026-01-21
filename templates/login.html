@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Login | AI Job Recommender</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="../static/auth.css">
+</head>
+<body>
+  <div class="auth-root">
+    <div class="auth-card">
+      <h1>AI Job Recommender</h1>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flash-area">
+            {% for category, message in messages %}
+              <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <form action="/login" method="post" class="auth-form">
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button class="btn" type="submit">Login</button>
+      </form>
+
+      <div class="links-row">
+        <a href="{{ url_for('forgot') }}">Forgot password?</a>
+        <a href="/signup">Register</a>
+      </div>
+
+      <p class="small">If you don't have an account, click Register to create one.</p>
+    </div>
+  </div>
+</body>
+</html>
