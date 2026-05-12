@@ -31,3 +31,10 @@ def get_user_by_email(email):
     user = cur.fetchone()
     conn.close()
     return user
+
+def update_password(email, new_password_hash):
+    conn = sqlite3.connect(DB_NAME)
+    cur = conn.cursor()
+    cur.execute("UPDATE users SET password = ? WHERE email = ?", (new_password_hash, email))
+    conn.commit()
+    conn.close()

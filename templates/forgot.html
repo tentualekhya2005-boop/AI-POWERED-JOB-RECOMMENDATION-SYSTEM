@@ -21,9 +21,10 @@
         {% endif %}
       {% endwith %}
 
-      <form action="/forgot" method="post" class="auth-form">
-        <input type="email" name="email" placeholder="Registered email" required>
-        <button class="btn" type="submit">Send reset link</button>
+      <form action="/forgot" method="post" class="auth-form" autocomplete="off">
+        <input type="email" name="email" placeholder="Registered email" required autocomplete="off">
+        <input type="password" name="new_password" placeholder="New Password" required minlength="6" autocomplete="new-password">
+        <button class="btn" type="submit">Reset Password</button>
       </form>
 
       <div class="links-row">

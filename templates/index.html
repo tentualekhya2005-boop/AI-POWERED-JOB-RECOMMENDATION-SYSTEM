@@ -4,15 +4,23 @@
   <meta charset="utf-8">
   <title>Dashboard | AI Job Recommender</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link rel="stylesheet" href="../static/style.css">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <link rel="stylesheet" href="../static/style.css?v=3.1415">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 </head>
 <body>
+  <div class="bg-shape shape-1"></div>
+  <div class="bg-shape shape-2"></div>
+  <div class="bg-shape shape-3"></div>
+
   <div class="container">
 
     <header class="header">
       <div class="left">
-        <h1><i class="fas fa-robot"></i> AI Job Recommendation System</h1>
-        <p class="subtitle">Upload your resume (PDF) to extract skills and get job recommendations.</p>
+        <h1><i class="fas fa-robot"></i> Career Prep & AI Job Recommender</h1>
+        <p class="subtitle">Your all-in-one platform for resume analysis, interview prep, and aptitude tests.</p>
       </div>
       <div class="right">
         <div class="user-box">
@@ -22,7 +30,17 @@
       </div>
     </header>
 
+    <div class="tabs-container">
+      <button class="tab-btn active" onclick="switchTab('analyzer')"><i class="fas fa-file-alt"></i> Resume AI</button>
+      <button class="tab-btn" onclick="switchTab('tracker')"><i class="fas fa-clipboard-list"></i> Job Tracker</button>
+      <button class="tab-btn" onclick="switchTab('interview')"><i class="fas fa-comments"></i> Interview Prep</button>
+      <button class="tab-btn" onclick="switchTab('aptitude')"><i class="fas fa-brain"></i> Quizzes</button>
+      <button class="tab-btn" onclick="switchTab('tips')"><i class="fas fa-book"></i> Materials</button>
+    </div>
+
     <main>
+      <!-- Analyzer Tab -->
+      <div id="analyzer" class="tab-pane active">
       <section id="uploadSection" class="upload-section">
         <div id="uploadArea" class="upload-area">
           <div class="upload-inner">
@@ -44,11 +62,30 @@
       </section>
 
       <section id="loadingSection" class="loading-section" style="display:none;">
-        <div class="spinner"></div>
-        <button>    Analyzing your resume...</button>
+        <div class="scanner-container">
+          <div class="scanner-bar"></div>
+          <i class="fas fa-file-pdf file-icon-large"></i>
+        </div>
+        <p class="loading-text">Extracting Skills via AI...</p>
       </section>
 
       <section id="resultsSection" class="results-section" style="display:none;">
+        <div class="box score-box" style="grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+          <div style="display: flex; align-items: center; gap: 30px;">
+            <div class="score-circle">
+              <div class="score-text"><span id="resumeScore">0</span>%</div>
+            </div>
+            <div class="level-info">
+              <h2>Resume Strength</h2>
+              <p style="font-size: 1.1rem;">Estimated Level: <strong id="resumeLevel" style="color: #a78bfa;">Beginner</strong></p>
+              <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 5px;">Based on technical skill extraction density.</p>
+            </div>
+          </div>
+          <div>
+            <button class="btn btn-primary" onclick="window.print()"><i class="fas fa-file-download"></i> Save Report</button>
+          </div>
+        </div>
+
         <div class="box skills-box">
           <h1>Extracted Skills</h1>
           <div id="skillsContainer" class="skills-container"></div>
@@ -63,6 +100,15 @@
           <h2>Courses</h2>
           <div id="coursesContainer" class="courses-container"></div>
         </div>
+
+        <div class="box cover-letter-box">
+          <h2><i class="fas fa-file-signature"></i> AI Cover Letter Generator</h2>
+          <p style="color: #cbd5e1; margin-bottom: 15px;">Based on your extracted skills, here is a tailored cover letter template. Copy and customize it for your next application!</p>
+          <div style="position: relative;">
+            <textarea id="coverLetterText" readonly style="width: 100%; height: 250px; padding: 15px; border-radius: 10px; background: rgba(0,0,0,0.3); color: #e2e8f0; border: 1px solid rgba(167, 139, 250, 0.3); resize: vertical; font-family: 'Outfit', sans-serif; line-height: 1.6;"></textarea>
+            <button class="btn btn-primary" onclick="copyCoverLetter()" style="position: absolute; top: 10px; right: 10px; padding: 8px 15px; font-size: 0.9rem;"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+        </div>
       </section>
 
       <section id="errorSection" class="error-section" style="display:none;">
@@ -72,11 +118,164 @@
           <button class="btn primary" onclick="resetApp()">Try Again</button>
         </div>
       </section>
+      </div> <!-- End Analyzer Tab -->
+
+      <!-- Job Tracker Tab -->
+      <div id="tracker" class="tab-pane" style="display:none;">
+        <div class="box">
+          <h2><i class="fas fa-clipboard-list"></i> Job Application Tracker</h2>
+          <p style="color: #cbd5e1; margin-bottom: 20px;">Keep track of your job search progress. Add companies and drag them across stages.</p>
+          
+          <div class="tracker-controls">
+            <input type="text" id="newJobCompany" placeholder="Company Name" class="styled-input" style="padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: white;">
+            <input type="text" id="newJobRole" placeholder="Job Role" class="styled-input" style="padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: white;">
+            <button class="btn btn-primary" onclick="addJobToTracker()" style="width: auto; padding: 10px 20px;"><i class="fas fa-plus"></i> Add Job</button>
+            <button class="btn btn-secondary" onclick="clearAllJobs()" style="width: auto; padding: 10px 20px; background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #fca5a5; margin-left: auto;"><i class="fas fa-trash"></i> Clear All</button>
+          </div>
+
+          <div class="kanban-board">
+            <div class="kanban-column" id="wishlist-col" ondrop="drop(event)" ondragover="allowDrop(event)">
+              <h3 style="color: #38bdf8;">Wishlist</h3>
+              <div class="kanban-cards"></div>
+            </div>
+            <div class="kanban-column" id="applied-col" ondrop="drop(event)" ondragover="allowDrop(event)">
+              <h3 style="color: #fbbf24;">Applied</h3>
+              <div class="kanban-cards"></div>
+            </div>
+            <div class="kanban-column" id="interview-col" ondrop="drop(event)" ondragover="allowDrop(event)">
+              <h3 style="color: #a78bfa;">Interviewing</h3>
+              <div class="kanban-cards"></div>
+            </div>
+            <div class="kanban-column" id="offer-col" ondrop="drop(event)" ondragover="allowDrop(event)">
+              <h3 style="color: #22c55e;">Offered</h3>
+              <div class="kanban-cards"></div>
+            </div>
+            <div class="kanban-column" id="rejected-col" ondrop="drop(event)" ondragover="allowDrop(event)">
+              <h3 style="color: #ef4444;">Rejected</h3>
+              <div class="kanban-cards"></div>
+            </div>
+          </div>
+        </div>
+      </div>      <!-- Interview Prep Tab -->
+      <div id="interview" class="tab-pane" style="display:none;">
+        <div class="box">
+          <h2><i class="fas fa-comments"></i> AI Interview Preparation</h2>
+          <p style="color: #cbd5e1; margin-bottom: 20px;">Select a topic to view commonly asked questions, answers, and AI-generated explanations.</p>
+          <select id="interviewTopic" class="styled-select" onchange="loadInterviewQA()">
+            <option value="hr">HR & Behavioral</option>
+            <option value="python">Python</option>
+            <option value="java">Java</option>
+            <option value="c">C Language</option>
+            <option value="webdev">Web Development</option>
+            <option value="sql">SQL / Database</option>
+          </select>
+          <div id="qaContainer" class="qa-container"></div>
+        </div>
+      </div>
+
+      <!-- Aptitude Tab -->
+      <div id="aptitude" class="tab-pane" style="display:none;">
+        <div class="box">
+          <h2><i class="fas fa-brain"></i> Interactive Mock Quizzes</h2>
+          <p style="color: #cbd5e1; margin-bottom: 20px;">Test your skills with topic-wise questions, complete with answers and explanations.</p>
+          
+          <div id="quizSetup">
+              <!-- Dynamically populated by JS -->
+          </div>
+
+          <div id="quizContainer" style="display:none; margin-top: 25px; background: rgba(0,0,0,0.2); padding: 25px; border-radius: 15px;">
+             <div style="display: flex; justify-content: space-between; margin-bottom: 15px; color: #a78bfa;">
+                 <span id="quizProgress">Question 1/100</span>
+                 <span id="quizScoreTrack">Score: 0</span>
+             </div>
+             
+             <div class="quiz-layout" style="display: flex; gap: 20px;">
+                 <!-- Question Area -->
+                 <div class="quiz-main" style="flex: 1;">
+                     <h3 id="questionText" style="margin-bottom: 20px; font-size: 1.3rem;"></h3>
+                     <div id="optionsContainer" class="options-container"></div>
+                     
+                     <div id="explanationBox" style="display:none; margin-top: 20px; padding: 15px; background: rgba(34, 197, 94, 0.1); border-left: 4px solid #22c55e; border-radius: 5px;"></div>
+                     
+                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 25px;">
+                        <button class="btn btn-secondary" onclick="resetQuiz()" style="background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #fca5a5; width: auto; padding: 8px 15px;"><i class="fas fa-times"></i> Exit</button>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn btn-secondary" id="prevQuestionBtn" onclick="prevQuestion()" style="width: auto; padding: 8px 20px;"><i class="fas fa-arrow-left"></i> Previous</button>
+                            <button class="btn btn-primary" id="nextQuestionBtn" onclick="nextQuestion()" style="width: auto; padding: 8px 20px;">Next <i class="fas fa-arrow-right"></i></button>
+                        </div>
+                     </div>
+                 </div>
+
+                 <!-- Navigation Sidebar -->
+                 <div class="quiz-nav-sidebar" style="width: 300px; max-height: 500px; overflow-y: auto; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(255,255,255,0.1); padding: 15px; border-radius: 10px;">
+                     <h4 style="color: #cbd5e1; margin-bottom: 10px; text-align: center;">Question Navigator</h4>
+                     <div id="questionNavGrid" class="question-nav-grid">
+                        <!-- 100 boxes populated dynamically -->
+                     </div>
+                 </div>
+             </div>
+          </div>
+
+          <div id="quizResult" style="display:none; text-align: center; padding: 30px;">
+             <h3 style="font-size: 2rem;">Quiz Completed!</h3>
+             <p style="font-size: 3rem; font-weight: 800; color: #38bdf8; margin: 20px 0;" id="quizScoreDisplay"></p>
+             <p id="quizFeedback" style="margin-bottom: 20px; color: #cbd5e1;"></p>
+             <button class="btn btn-primary" onclick="resetQuiz()" style="width: auto;">Take Another Quiz</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tips Tab -->
+      <div id="tips" class="tab-pane" style="display:none;">
+        <div class="box">
+          <h2><i class="fas fa-book"></i> Best Materials & Crack Tips</h2>
+          <div class="tips-grid">
+            <div class="tip-card">
+              <h3><i class="fas fa-code"></i> Top Coding Platforms</h3>
+              <ul>
+                <li><a href="https://leetcode.com/" target="_blank" style="color:#38bdf8; text-decoration: none;">LeetCode</a> - Essential for mastering Data Structures & Algorithms.</li>
+                <li><a href="https://neetcode.io/" target="_blank" style="color:#38bdf8; text-decoration: none;">NeetCode.io</a> - Highly structured roadmap for cracking coding interviews.</li>
+                <li><a href="https://www.geeksforgeeks.org/" target="_blank" style="color:#38bdf8; text-decoration: none;">GeeksforGeeks</a> - Excellent for core CS concepts and tutorials.</li>
+                <li><a href="https://www.hackerrank.com/" target="_blank" style="color:#38bdf8; text-decoration: none;">HackerRank</a> - Great for beginner programming and database SQL practice.</li>
+              </ul>
+            </div>
+            <div class="tip-card">
+              <h3><i class="fas fa-video"></i> Best YouTube Channels</h3>
+              <ul>
+                <li><a href="https://www.youtube.com/c/Freecodecamp" target="_blank" style="color:#38bdf8; text-decoration: none;">freeCodeCamp.org</a> - Full, multi-hour courses on literally everything.</li>
+                <li><a href="https://www.youtube.com/@TakeUForward" target="_blank" style="color:#38bdf8; text-decoration: none;">takeUforward (Striver)</a> - Best channel for DSA, specifically the A-Z SDE sheet.</li>
+                <li><a href="https://www.youtube.com/@coreyms" target="_blank" style="color:#38bdf8; text-decoration: none;">Corey Schafer</a> - Masterclass tutorials for Python.</li>
+                <li><a href="https://www.youtube.com/@ByteByteGo" target="_blank" style="color:#38bdf8; text-decoration: none;">ByteByteGo</a> - Excellent animated system design explanations.</li>
+              </ul>
+            </div>
+            <div class="tip-card">
+              <h3><i class="fas fa-book-open"></i> Quantitative & Aptitude</h3>
+              <ul>
+                <li><a href="https://www.indiabix.com/" target="_blank" style="color:#38bdf8; text-decoration: none;">IndiaBix</a> - The ultimate resource for Aptitude, Logical Reasoning, and puzzles.</li>
+                <li><strong>Book:</strong> "Quantitative Aptitude" by R.S. Aggarwal.</li>
+                <li><strong>Strategy:</strong> Master Percentages, Ratios, Time-Speed-Distance, and Work-Time concepts first.</li>
+              </ul>
+            </div>
+            <div class="tip-card">
+              <h3><i class="fas fa-lightbulb"></i> How to Crack Interviews</h3>
+              <ul>
+                <li><strong>Research:</strong> Know the company and role thoroughly before joining the call.</li>
+                <li><strong>STAR Method:</strong> Answer behavioral questions using Situation, Task, Action, Result.</li>
+                <li><strong>Mock Interviews:</strong> Practice with peers on <a href="https://pramp.com" target="_blank" style="color:#38bdf8; text-decoration: none;">Pramp</a> or similar platforms.</li>
+                <li><strong>Ask Questions:</strong> Always have 2-3 questions ready for the interviewer to show interest.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
 
   </div>
 
   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-  <script src="/static/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script src="../static/interviewData.js"></script>
+  <script src="../static/massiveQuizData.js"></script>
+  <script src="../static/script.js?v=3.1415"></script>
 </body>
 </html>
